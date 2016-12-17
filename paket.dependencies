@@ -1,4 +1,5 @@
 source https://nuget.org/api/v2
 
-nuget FSharp.Data
 nuget FAKE
+nuget FSharp.Core
+nuget FSharp.Data

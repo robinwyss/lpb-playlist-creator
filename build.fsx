@@ -33,10 +33,18 @@ Target "Deploy" (fun _ ->
     |> Zip buildDir (deployDir + "ApplicationName." + version + ".zip")
 )
 
+Target "Run" (fun _ ->
+   ignore(Shell.Exec "build\PlaylistCreator.exe" )
+)
+
 // Build order
 "Clean"
   ==> "Build"
   ==> "Deploy"
+
+"Clean"
+  ==> "Build"
+  ==> "Run"
 
 // start build
 RunTargetOrDefault "Build"

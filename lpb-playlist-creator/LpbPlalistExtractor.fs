@@ -9,9 +9,9 @@ type ParseResult =
     | Success of Episode
     | Error of string
 
-type Song = {Title: string; Artist: string}
+type Track = {Title: string; Artist: string}
 
-type Playlist = {Songs: Song list; Name: string} 
+type Playlist = {Tracks: Track list; Name: string} 
     
 let GetEpisodeList =
 
@@ -48,4 +48,4 @@ let GetPlaylist (episode: Episode) =
             let t = n.Descendants("i") |> Seq.head
             let title = t.InnerText()
             { Title = title; Artist = artist})
-    {Songs= songs;Name= episodeNbr}
+    {Tracks= songs;Name= episodeNbr}

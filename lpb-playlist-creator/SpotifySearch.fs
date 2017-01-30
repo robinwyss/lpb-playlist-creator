@@ -2,36 +2,13 @@ module SpotifySearch
 
 open FSharp.Data
 
-let search artist track = 
-    let query = sprintf "track:%s artist:%s" track artist
+type TrackSearch = JsonProvider<""" {"tracks":{"href":"","items":[{"album":{"album_type":"","artists":[{"external_urls":{"spotify":""},"href":"","id":"","name":"","type":"","uri":""}],"available_markets":[""],"external_urls":{"spotify":""},"href":"","id":"","images":[{"height":575,"url":"","width":640}],"name":"","type":"","uri":""},"artists":[{"external_urls":{"spotify":""},"href":"","id":"","name":"=","type":"","uri":""}],"available_markets":[""],"disc_number":1,"duration_ms":230693,"explicit":false,"external_ids":{"isrc":""},"external_urls":{"spotify":""},"href":"","id":"","name":"","popularity":65,"preview_url":"","track_number":2,"type":"","uri":""}],"limit":20,"next":null,"offset":0,"previous":null,"total":12}} """>
+
+let searchTrack artistName trackName = 
+    let query = sprintf "track:%s artist:%s" trackName artistName
     let result = Http.RequestString(
                     "https://api.spotify.com/v1/search", httpMethod = "GET", 
                     query   = [ "q", query; "type", "track" ])
-                    |> JsonValue.Parse
-    //result
-        //|> JsonValue.Parse
-    match result with 
-        | JsonValue.Record r -> 
-            let tracks = r |> Seq.find (fun e -> (fst e) = "tracks") |> snd 
-            let items = tracks.TryGetProperty "items"
-            match items with
-                | Some  i -> 
-                    let first = i.AsArray() |> Seq.take 1 // (fun e -> e.As)
-                    i.ToString()
-                    //first |> Seq.find (fun e -> match e.TryGetProperty "name" with
-                    //                                | Some name -> name.AsString()
-                    //                                | None -> false )
-                | None -> "Error 2"
-            //match tracks with
-            //    | (a,b) -> 
-            //        let items = r |> Seq.find (fun e -> (fst e) = "items")
-            //        match items with 
-            //        | (_, JsonValue.Array a) ->  
-            //            let firstTrack = a |> Seq.take 1
-            //            let e1 = firstTrack |> Seq.take 1 // Seq.find (fun e -> )
-            //            e1.ToString()
-            //        | _ -> "Error 1 " + tracks.ToString()
-            //    | _ -> "Error 1 " + tracks.ToString()
-        | _ -> "Error 1"
-
-
+    let tracks = TrackSearch.Parse result
+    let firsTrack = tracks.Tracks.Items |> Seq.head
+    firsTrack.Name.ToString()

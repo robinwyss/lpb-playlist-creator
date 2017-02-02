@@ -9,14 +9,24 @@ type SpotifyArtist = { Name: string; Id: string; Link: string }
 type SpotifyTrack = { Title: string; Artists: SpotifyArtist list; Id: string; Link: string }
 
 
-
-let searchTrack artistName trackName = 
-    let query = sprintf "track:%s artist:%s" trackName artistName
+let searchTrackByQuery query =
     let result = Http.RequestString(
                     "https://api.spotify.com/v1/search", httpMethod = "GET", 
                     query   = [ "q", query; "type", "track" ])
     let tracks = TrackSearch.Parse result
-    let firsTrack = tracks.Tracks.Items |> Seq.head
-    let artists = firsTrack.Artists |> Seq.map (fun a ->  { Name=a.Name.ToString(); Id= a.Id.ToString(); Link=a.Href.ToString() }) |> Seq.toList
-    let n = firsTrack.Name
-    { Title=firsTrack.Name.ToString(); Artists=artists; Id=firsTrack.Id.ToString(); Link=firsTrack.Href.ToString() } 
+
+    tracks.Tracks.Items |> Seq.map (fun track -> 
+        let artists = track.Artists |> 
+                        Seq.map (fun a ->  
+                            {   Name=a.Name.ToString(); 
+                                Id= a.Id.ToString(); 
+                                Link=a.Href.ToString() 
+                            }) |> Seq.toList
+        {   Title=track.Name.ToString();
+        Artists=artists; 
+        Id=track.Id.ToString();
+        Link=track.Href.ToString() } ) |> Seq.toList
+
+let searchTrackByNameAndArtist artistName trackName = 
+    let query = sprintf "track:%s artist:%s" trackName artistName
+    searchTrackByQuery query

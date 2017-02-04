@@ -1,7 +1,7 @@
 .paket/paket.exe
 
 #config
-src/config.json
+CLI/config.json
 
 ### F# ###
 lib/debug

@@ -3,22 +3,19 @@ module PlaylistExtractor
 open FSharp.Data
 open System.Text.RegularExpressions
 
-type Episode = Episode of string * string
+open PlaylistScraper
 
 type ParseResult =
-    | Success of Episode
+    | Success of Release
     | Error of string
 
-type Track = {Title: string; Artist: string}
-
-type Playlist = {Tracks: Track list; Name: string} 
     
 let GetEpisodeList =
 
     let extractEpisodeNum txt = 
         let result = Regex.Match(txt,"LPB\s(\d+)(\s.*)")
         if result.Success then 
-            Success (Episode (result.Groups.[1].Value, result.Groups.[2].Value))
+            Success ({Id= result.Groups.[1].Value; Name = result.Groups.[2].Value})
         else 
             Error txt
 
@@ -35,9 +32,9 @@ let GetEpisodeList =
                 | Success e -> Some e
                 |_ -> None)
 
-let GetPlaylist (episode: Episode) =
+let GetPlaylist (episode: Release) =
 
-    let episodeNbr = match episode with Episode (nbr, name) -> nbr 
+    let episodeNbr = episode.Id
 
     let doc = HtmlDocument.Load("https://laplanetebleue.com/emission-"+episodeNbr)
     let songs = 

@@ -1,4 +1,4 @@
-module PlaylistCreator
+module CLI
 
 open FSharp.Data
 
@@ -25,8 +25,12 @@ let rec interactiveSearch () =
             searchOnYoutube input |> printVideos
             interactiveSearch ()
 
+let printPlaneteBleuPlaylists () =
+    let episodes = GetEpisodeList 
+    let playlist = episodes |> Seq.map GetPlaylist 
+    printfn "%A" playlist
+    System.Console.ReadLine() |> ignore
 
-        
 [<EntryPoint>]
 let main argv =
     printfn "search"
@@ -35,7 +39,4 @@ let main argv =
     else 
         let query = argv |> Array.reduce (fun a b -> a + " " + b)
         searchTrackByQuery query |> printTracks
-    //let episodes = GetEpisodeList 
-    //let playlist = episodes |> Seq.map GetPlaylist 
-    //printfn "%A" playlist
     0 // return an integer exit code

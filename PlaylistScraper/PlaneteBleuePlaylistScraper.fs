@@ -1,4 +1,4 @@
-module PlaylistExtractor
+module PlaneteBleue
 
 open FSharp.Data
 open System.Text.RegularExpressions

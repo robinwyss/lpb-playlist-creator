@@ -2,7 +2,6 @@ module CLI
 
 open FSharp.Data
 
-open PlaylistExtractor
 open SpotifySearch
 open YoutubeSearch
 
@@ -26,17 +25,20 @@ let rec interactiveSearch () =
             interactiveSearch ()
 
 let printPlaneteBleuPlaylists () =
-    let episodes = GetEpisodeList 
-    let playlist = episodes |> Seq.map GetPlaylist 
+    let episodes = PlaneteBleue.GetEpisodeList 
+    let playlist = episodes |> Seq.map PlaneteBleue.GetPlaylist 
     printfn "%A" playlist
     System.Console.ReadLine() |> ignore
 
-[<EntryPoint>]
-let main argv =
+let search argv= 
     printfn "search"
     if Array.isEmpty argv then
         interactiveSearch ()
     else 
         let query = argv |> Array.reduce (fun a b -> a + " " + b)
         searchTrackByQuery query |> printTracks
+
+[<EntryPoint>]
+let main argv =
+    printPlaneteBleuPlaylists ()
     0 // return an integer exit code

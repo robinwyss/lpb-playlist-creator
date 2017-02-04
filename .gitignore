@@ -1,5 +1,8 @@
 .paket/paket.exe
 
+#config
+src/config.json
+
 ### F# ###
 lib/debug
 lib/release

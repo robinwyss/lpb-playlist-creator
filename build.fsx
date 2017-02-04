@@ -11,7 +11,7 @@ let deployDir = "./deploy/"
 // Filesets
 let appReferences  =
     !! "/**/*.csproj"
-    ++ "/**/*.fsproj"
+    ++ "/**/*.fsproj" 
 
 // version info
 let version = "0.1"  // or retrieve from CI server
@@ -22,9 +22,11 @@ Target "Clean" (fun _ ->
 )
 
 Target "Build" (fun _ ->
+    CopyTo buildDir [|"src/config.json"|]
     // compile all projects below src/app/
     MSBuildDebug buildDir "Build" appReferences
     |> Log "AppBuild-Output: "
+    
 )
 
 Target "Deploy" (fun _ ->

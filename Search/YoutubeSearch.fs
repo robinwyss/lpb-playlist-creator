@@ -6,14 +6,11 @@ type private VideoSearch = JsonProvider<"""{"kind":"a","etag":"a","nextPageToken
 
 type YoutubeVideo = {Title:string; Description:string; ChannelTitle: string; Id: string}
 
-let searchVideo apiKey query =
-    let result = Http.RequestString(
-                    "https://www.googleapis.com/youtube/v3/search", httpMethod = "GET", 
-                    query   = [ "type", "video"; "part","snippet"; "q", query; "key", apiKey ])
+let parseVideoSearchResult result =
     let searchResult = VideoSearch.Parse result
-    searchResult.Items |> Seq.map (fun i -> {
-                                            Title = i.Snippet.Title;
-                                            Description = i.Snippet.Description;
-                                            ChannelTitle = i.Snippet.ChannelTitle;
-                                            Id = i.Id.VideoId
-                                            }) |> Seq.toList
+    searchResult.Items |> Seq.map (fun i -> 
+        { Title = i.Snippet.Title;
+        Description = i.Snippet.Description;
+        ChannelTitle = i.Snippet.ChannelTitle;
+        Id = i.Id.VideoId
+        }) |> Seq.toList

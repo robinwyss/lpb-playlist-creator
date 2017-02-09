@@ -1,4 +1,4 @@
-module SpotifySearch
+module SpotifySearch 
 
 open FSharp.Data
 
@@ -8,12 +8,8 @@ type SpotifyArtist = { Name: string; Id: string; Link: string }
 
 type SpotifyTrack = { Title: string; Artists: SpotifyArtist list; Id: string; Link: string }
 
-let searchTrackByQuery query =
-    let result = Http.RequestString(
-                    "https://api.spotify.com/v1/search", httpMethod = "GET", 
-                    query   = [ "q", query; "type", "track" ])
+let parseTrackSearchResult result = 
     let tracks = TrackSearch.Parse result
-
     tracks.Tracks.Items |> Seq.map (fun track -> 
         let artists = track.Artists |> 
                         Seq.map (fun a ->  
@@ -26,6 +22,3 @@ let searchTrackByQuery query =
         Id=track.Id.ToString();
         Link=track.Href.ToString() } ) |> Seq.toList
 
-let searchTrackByNameAndArtist artistName trackName = 
-    let query = sprintf "track:%s artist:%s" trackName artistName
-    searchTrackByQuery query

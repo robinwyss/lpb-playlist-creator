@@ -7,6 +7,9 @@ open Suave.Operators
 open Suave.RequestErrors
 open Newtonsoft.Json
 
+open SpotifySearch
+open SpotifySearchClient
+
 let JSON a =
     JsonConvert.SerializeObject a |> OK
     >=> Writers.setMimeType "application/json; charset=utf-8"
@@ -15,7 +18,7 @@ let JSON a =
 let search = 
     request ( fun r -> 
         match r.queryParam "q" with 
-        | Choice1Of2 q -> ( SpotifySearch.searchTrackByQuery q ) |> JSON
+        | Choice1Of2 q -> ( searchTrack q |>  parseTrackSearchResult ) |> JSON
         | _ -> BAD_REQUEST  "query parameter is missing"
     )
 

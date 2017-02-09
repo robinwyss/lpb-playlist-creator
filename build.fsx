@@ -22,7 +22,7 @@ Target "Clean" (fun _ ->
 )
 
 Target "Build" (fun _ ->
-    CopyTo buildDir [|"CLI/config.json"|]
+    CopyTo buildDir [|"config.json"|]
     // compile all projects below src/app/
     MSBuildDebug buildDir "Build" appReferences
     |> Log "AppBuild-Output: "

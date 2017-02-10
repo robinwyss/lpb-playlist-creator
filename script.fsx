@@ -13,36 +13,35 @@ module Lpb =
     type Song = {Title: string; Artist: string}
 
     type Playlist = {Songs: Song list; Name: string} 
-    let GetEpisodeList =
-
-        let extractEpisodeNum txt = 
-            let result = Regex.Match(txt,"LPB\s(\d+)(\s.*)")
-            if result.Success then 
-                Success (Episode (result.Groups.[1].Value, result.Groups.[2].Value))
-            else 
-                Error txt
-
-        let results = HtmlDocument.Load("https://laplanetebleue.com/emissions")
-
-        let select = 
-            results.Descendants ["select"]
-            |> Seq.find (fun x -> x.AttributeValue("id") = "emission")
-    
-        select.Descendants ["option"]
-            |> Seq.map (fun x -> extractEpisodeNum (x.InnerText()))
-            |> Seq.choose (fun x-> 
-                match x with
-                    | Success e -> Some e
-                    |_ -> None)
+    type Year = {Year: string; Url: string}
+    type Month = {Month: string; Year: Year; Url: string}
+   
 
 
-    let GetPlaylist (episode: Episode) =
+    let LoadRA path = 
+        HtmlDocument.Load("https://www.residentadvisor.net" + path)
 
-        let episodeNbr = match episode with Episode (nbr, name) -> nbr 
+    let GetYearsFromRa (result:HtmlDocument) =
+        let elements = 
+            result.CssSelect("ul.monthYear") |> Seq.head
+        let years = elements.Descendants ["ul"] |> Seq.head
+        
+        years.Descendants ["a"]
+            |> Seq.map (fun x -> {Year.Year = x.InnerText(); Url = x.AttributeValue("href")})
 
-        let doc = HtmlDocument.Load("https://laplanetebleue.com/emission-"+episodeNbr)
+
+    let GetMonthsFromRa (year:Year) (result:HtmlDocument)=
+        let elements = 
+            result.CssSelect("ul.monthYear") |> Seq.head
+        let years = elements.Descendants ["ul"] |> Seq.skip 1 |> Seq.head
+        
+        years.Descendants ["a"]
+            |> Seq.filter (fun x -> x.InnerText() <> "Latest")
+            |> Seq.map (fun x -> {Month = x.InnerText(); Year = year; Url= x.AttributeValue("href")})
+
+    let GetPlaylist (result:HtmlDocument) =
         let songs = 
-            doc.CssSelect("table")
+            result.CssSelect("table")
             |> List.map (fun n ->
                 let a = n.Descendants("span") |> Seq.head
                 let artist = a.InnerText()
@@ -51,7 +50,9 @@ module Lpb =
                 { Title = title; Artist = artist})
         {Songs= songs;Name= episodeNbr}
 
-let episodes = Lpb.GetEpisodeList 
-let playlist = episodes |> Seq.map Lpb.GetPlaylist
+let years = Lpb.GetYearsFromRa (Lpb.LoadRA "/tracks")
+let yearone = years |>  Seq.head
+let months = years |> Seq.collect (fun x -> Lpb.LoadRA x.Url |> (Lpb.GetMonthsFromRa x)) 
 
-printf "bla %A" playlist
+let playlist = months |> Seq.map (fun m -> Lpb.LoadRA m.Url |> GetPlaylist 
+printf "bla %A" months
